@@ -1,0 +1,102 @@
+# =========================
+# IDE Files
+# =========================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Build Output
+# =========================
+target/
+build/
+dist/
+out/
+
+# =========================
+# Java / Spring Boot
+# =========================
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+
+# =========================
+# Node / Angular
+# =========================
+node_modules/
+.angular/
+.npm/
+coverage/
+
+# Angular environment files
+src/environments/environment*.ts
+
+# =========================
+# Application Config
+# =========================
+application.properties
+application.yml
+application-dev.yml
+application-prod.yml
+
+# =========================
+# Keycloak / Security
+# =========================
+keycloak.json
+*.jks
+*.keystore
+*.pem
+*.key
+*.crt
+
+# =========================
+# Database
+# =========================
+*.db
+*.sqlite
+
+# =========================
+# Temporary Files
+# =========================
+tmp/
+temp/
+*.tmp
+*.swp
+
+# =========================
+# Archives
+# =========================
+*.zip
+*.tar
+*.gz
+*.rar
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
