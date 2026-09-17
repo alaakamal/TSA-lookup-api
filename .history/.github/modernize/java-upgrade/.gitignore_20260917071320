@@ -87,12 +87,6 @@ temp/
 *.tmp
 *.swp
 
-# VS Code
-.vscode/
-.history/
-
-# Ignore workspace-specific settings
-*.code-workspace
 # =========================
 # Archives
 # =========================
