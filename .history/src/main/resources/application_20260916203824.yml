@@ -1,0 +1,167 @@
+spring:
+  application:
+    name: TSA-lookup-api
+
+  # Points at the SAME Oracle schema the legacy WebLogic app already reads/writes.
+  # Fill in real values via env vars for each environment - never commit real credentials.
+  datasource:
+    url: ${TSA_DB_URL:jdbc:oracle:thin:@//localhost:1521/ORCLPDB1}
+    username: ${TSA_DB_USER:tsa_app}
+    password: ${TSA_DB_PASSWORD:changeme}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # never let Hibernate touch a schema shared with the legacy app
+    properties:
+      hibernate:
+        default_schema: ${TSA_DB_SCHEMA:TSA}
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true   # tables already exist (owned by the legacy app) - baseline, don't create
+    baseline-version: "0"
+    locations: classpath:db/migration
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Same Keycloak realm the WebLogic app's SSO already uses - one identity provider,
+          # so 'adminUser' / 'superAdminUser' roles mean the same thing on both services.
+          issuer-uri: ${TSA_KEYCLOAK_ISSUER_URI:https://keycloak.example.internal/realms/tsa}
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    eg.com.ef.tsa.lookupapi: INFO
+
+# Config-driven alternative to the 20 JPA entities under eg.com.ef.tsa.lookupapi.domain -
+# see eg.com.ef.tsa.lookupapi.generic.*. Adding a lookup #21 here needs no new Java file.
+tsa:
+  lookups:
+    - path: banks
+      table: BANK
+      idColumn: ID
+      idType: LONG
+      hasCode: false
+    - path: currencies
+      table: CURRENCY
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+      extraColumns: [SYMBOL]
+    - path: institutions
+      table: INSTITUTION
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: languages
+      table: LANGUAGE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: titles
+      table: TITLE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: entity-types
+      table: ENTITY_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: entity-levels
+      table: ENTITY_LEVEL
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: entity-categories
+      table: ENTITY_CATEGORY
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: applied-to-types
+      table: APPLIED_TO_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: system-parameters-types
+      table: SYSTEM_PARAMETERS_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: statuses
+      table: STATUS
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: status-types
+      table: STATUS_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: voucher-entry-modes
+      table: VOUCHER_ENTRY_MODE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+      extraColumns: [AR_DESCRIPTION, EN_DESCRIPTION]
+    - path: file-directions
+      table: FILE_DIRECTION
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: file-types
+      table: FILE_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+      extraColumns: [AR_DESCRIPTION, EN_DESCRIPTION]
+    - path: error-codes
+      table: ERROR_CODE
+      idColumn: CODE
+      idType: STRING
+      hasCode: false   # CODE is the primary key itself, not a separate business field
+      extraColumns: [AR_DESCRIPTION, EN_DESCRIPTION]
+    - path: audit-action-types
+      table: AUDIT_ACTION_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: other-entities
+      table: OTHER_ENTITY
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: customer-contact-person-types
+      table: CUSTOMER_CONTACT_PERN_TYPE
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+    - path: gfmis-request-statuses
+      table: GFMIS_REQUEST_STATUS
+      idColumn: ID
+      idType: LONG
+      hasCode: true
+      nameColumns: [NAME]        # single column, not bilingual AR_NAME/EN_NAME - confirmed
+                                  # against the legacy JPA entity, unlike every other lookup
+      extraColumns: [DESCRIPTION]
+      # NOTE: no GFMIS_REQUEST_STATUS_SEQ exists in the real schema (confirmed by a failed
+      # startup validation run) - POST (create) here will fail with an Oracle "sequence
+      # does not exist" error until the real id-assignment mechanism for this table is
+      # confirmed. GET/list/search are unaffected.
+      hasAudit: false             # no CREATED_BY/CREATED_DT/MODIFIED_BY/MODIFIED_DT columns exist
